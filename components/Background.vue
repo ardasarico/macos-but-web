@@ -6,7 +6,7 @@
 
 <style scoped lang="scss">
 .wallpaper {
-  background: url("/portfolio/assets/media/wallpaper.png") no-repeat center;
+  background: url("@/assets/media/wallpaper.webp") no-repeat center;
   background-size: cover;
 }
 </style>
