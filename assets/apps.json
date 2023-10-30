@@ -1,6 +1,6 @@
 [
   { "id": 1, "content": "Window Content 1", "isVisible": false , "isOpen": false , "icon": "/app-icons/finder.png", "type": "app"},
-  { "id": 2, "content": "Window Content 2", "isVisible": false , "isOpen": false , "icon": "/app-icons/bitmap.png", "type": "app" },
+  { "id": 2, "content": "Window Content 2", "isVisible": false , "isOpen": false , "icon": "/app-icons/bitmap.png", "type": "launchpad" },
   { "id": 3, "content": "Window Content 2", "isVisible": false , "isOpen": false , "icon": "/app-icons/safari.png", "type": "app" },
   { "id": 4, "content": "Window Content 2", "isVisible": false , "isOpen": false , "icon": "/app-icons/settings.png", "type": "app" },
   { "id": 5, "content": "Window Content 2", "isVisible": false , "isOpen": false , "icon": "/app-icons/mail.png", "type": "app" },

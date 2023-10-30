@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="relative flex items-end justify-center mb-1.5">
-      <div class="absolute z-[-1] bg-white w-full h-full dock-bg px-1"></div>
+      <div class="absolute z-[-1] bg-white w-full h-full dock-bg"></div>
       <div class="pb-2 flex items-end px-0.5">
         <button
           ondragstart="return false"
@@ -12,7 +12,7 @@
           :class="[
             'app-icon',
             hoveredIndexes.includes(index) ? 'app-animation' : '',
-            app.isOpen ? 'active-app' : '',
+            app.isOpen && app.type == 'app' ? 'active-app' : '',
           ]"
           @click="openSpecifiedWindow(app.id)"
         >
@@ -52,6 +52,7 @@
   justify-content: center;
   position: relative;
   user-select: none;
+  padding-top: 1px;
   width: 56px;
   height: 56px;
   transition:

@@ -1,58 +1,151 @@
 <template>
-  <div
-    v-if="windowData.isVisible"
-    class="window"
-    :style="{
-      top: y + 'px',
-      left: x + 'px',
-      width: width + 'px',
-      height: height + 'px',
-    }"
-    :class="{ 'window--fullscreen': isFullscreen }"
-  >
-    <div class="window__content">
-      <div
-        class="window__header flex items-center gap-2"
-        @mousedown.stop="startDrag"
-        @mouseup.stop="stopDrag"
-      >
-        <div
-          class="absolute left-16 w-full h-full"
-          @dblclick="maximizeWindow"
-        />
-        <button
-          class="window__navigation-button window__navigation-button--red"
-          @click="closeWindow"
-        ></button>
-        <button
-          class="window__navigation-button window__navigation-button--yellow"
-          @click="minimizeWindow"
-        ></button>
-        <button
-          class="window__navigation-button window__navigation-button--green"
-          @click="goFullscreen"
-        ></button>
-      </div>
-      <div class="w-full h-full pt-5">
-        <slot />
-      </div>
-    </div>
+  <div v-if="type === 'app'">
     <div
-      v-for="dir in [
-        'top',
-        'bottom',
-        'left',
-        'right',
-        'top-left',
-        'top-right',
-        'bottom-left',
-        'bottom-right',
-      ]"
-      :class="`window__resizer window__resizer--${dir}`"
-      @mousedown.prevent="startResize(dir, $event)"
-    ></div>
+      v-if="windowData.isVisible"
+      class="window"
+      :style="{
+        top: y + 'px',
+        left: x + 'px',
+        width: width + 'px',
+        height: height + 'px',
+      }"
+      :class="{ 'window--fullscreen': isFullscreen }"
+    >
+      <div class="window__content">
+        <div
+          class="window__header flex items-center gap-2"
+          @mousedown.stop="startDrag"
+          @mouseup.stop="stopDrag"
+        >
+          <div
+            class="absolute left-16 w-full h-full"
+            @dblclick="maximizeWindow"
+          />
+          <button
+            class="window__navigation-button window__navigation-button--red"
+            @click="closeWindow"
+          ></button>
+          <button
+            class="window__navigation-button window__navigation-button--yellow"
+            @click="minimizeWindow"
+          ></button>
+          <button
+            class="window__navigation-button window__navigation-button--green"
+            @click="goFullscreen"
+          ></button>
+        </div>
+        <div class="w-full h-full pt-5">
+          <slot />
+        </div>
+      </div>
+      <div
+        v-for="dir in [
+          'top',
+          'bottom',
+          'left',
+          'right',
+          'top-left',
+          'top-right',
+          'bottom-left',
+          'bottom-right',
+        ]"
+        :class="`window__resizer window__resizer--${dir}`"
+        @mousedown.prevent="startResize(dir, $event)"
+      ></div>
+    </div>
+  </div>
+  <div v-else>
+    <div v-if="windowData.isVisible" class="launchpad">asdasd</div>
   </div>
 </template>
+
+<style scoped>
+.launchpad {
+  position: fixed;
+  width: 100vw;
+  height: 100vh;
+  background: black;
+  top: 0;
+  left: 0;
+  z-index: 10;
+}
+.window {
+  @apply bg-red-500 flex flex-col overflow-hidden rounded-lg absolute;
+  backdrop-filter: blur(50px);
+  box-shadow:
+    0px 0px 3px 0px rgba(0, 0, 0, 0.55),
+    0px 8px 40px 0px rgba(0, 0, 0, 0.25),
+    0px 0px 3px 0px rgba(255, 255, 255, 0.1) inset;
+}
+.window__content {
+  @apply relative w-full h-full;
+}
+.window__header {
+  @apply absolute w-full px-2 py-2 bg-[#1E1E1E];
+}
+.window__navigation-button {
+  @apply w-3.5 h-3.5 rounded-full flex items-center justify-center;
+}
+.window__navigation-button--red {
+  @apply bg-red-500;
+}
+.window__navigation-button--yellow {
+  @apply bg-yellow-400;
+}
+.window__navigation-button--green {
+  @apply bg-green-500;
+}
+.window--fullscreen {
+  @apply bg-yellow-400 rounded-none;
+}
+.window__resizer {
+  @apply absolute;
+}
+.window__resizer--top,
+.window__resizer--bottom {
+  @apply w-full h-0.5;
+}
+.window__resizer--left,
+.window__resizer--right {
+  @apply h-full w-0.5;
+}
+.window__resizer--top-left,
+.window__resizer--top-right,
+.window__resizer--bottom-left,
+.window__resizer--bottom-right {
+  @apply w-2 h-2;
+}
+.window__resizer--top {
+  @apply top-0 left-0 cursor-n-resize;
+}
+.window__resizer--bottom {
+  @apply bottom-0 left-0 cursor-s-resize;
+}
+.window__resizer--left {
+  @apply top-0 left-0 cursor-w-resize;
+}
+.window__resizer--right {
+  @apply top-0 right-0 cursor-e-resize;
+}
+.window__resizer--top-left {
+  @apply top-0 left-0 cursor-nw-resize;
+}
+.window__resizer--top-right {
+  @apply top-0 right-0 cursor-ne-resize;
+}
+.window__resizer--bottom-left {
+  @apply bottom-0 left-0 cursor-sw-resize;
+}
+.window__resizer--bottom-right {
+  @apply bottom-0 right-0 cursor-se-resize;
+}
+
+.window-maximizing,
+.window-minimizing {
+  transition: 0.3s;
+}
+</style>
+
 <script>
 import { inject } from "vue";
 export default {
@@ -72,9 +165,10 @@ export default {
       isMaximized: false,
       isFullscreen: false,
       previousDimensions: null,
+      type: "",
     };
   },
-  props: ["windowData"],
+  props: ["windowData", "type"],
   methods: {
     goFullscreen() {
       if (!this.isFullscreen) {
@@ -261,81 +355,3 @@ export default {
   mounted() {},
 };
 </script>
-
-<style scoped>
-.window {
-  @apply bg-red-500 flex flex-col overflow-hidden rounded-lg absolute;
-  backdrop-filter: blur(50px);
-  box-shadow:
-    0px 0px 3px 0px rgba(0, 0, 0, 0.55),
-    0px 8px 40px 0px rgba(0, 0, 0, 0.25),
-    0px 0px 3px 0px rgba(255, 255, 255, 0.1) inset;
-}
-.window__content {
-  @apply relative w-full h-full;
-}
-.window__header {
-  @apply absolute w-full px-2 py-2 bg-[#1E1E1E];
-}
-.window__navigation-button {
-  @apply w-3.5 h-3.5 rounded-full flex items-center justify-center;
-}
-.window__navigation-button--red {
-  @apply bg-red-500;
-}
-.window__navigation-button--yellow {
-  @apply bg-yellow-400;
-}
-.window__navigation-button--green {
-  @apply bg-green-500;
-}
-.window--fullscreen {
-  @apply bg-yellow-400 rounded-none;
-}
-.window__resizer {
-  @apply absolute;
-}
-.window__resizer--top,
-.window__resizer--bottom {
-  @apply w-full h-0.5;
-}
-.window__resizer--left,
-.window__resizer--right {
-  @apply h-full w-0.5;
-}
-.window__resizer--top-left,
-.window__resizer--top-right,
-.window__resizer--bottom-left,
-.window__resizer--bottom-right {
-  @apply w-2 h-2;
-}
-.window__resizer--top {
-  @apply top-0 left-0 cursor-n-resize;
-}
-.window__resizer--bottom {
-  @apply bottom-0 left-0 cursor-s-resize;
-}
-.window__resizer--left {
-  @apply top-0 left-0 cursor-w-resize;
-}
-.window__resizer--right {
-  @apply top-0 right-0 cursor-e-resize;
-}
-.window__resizer--top-left {
-  @apply top-0 left-0 cursor-nw-resize;
-}
-.window__resizer--top-right {
-  @apply top-0 right-0 cursor-ne-resize;
-}
-.window__resizer--bottom-left {
-  @apply bottom-0 left-0 cursor-sw-resize;
-}
-.window__resizer--bottom-right {
-  @apply bottom-0 right-0 cursor-se-resize;
-}
-
-.window-maximizing,
-.window-minimizing {
-  transition: 0.3s;
-}
-</style>

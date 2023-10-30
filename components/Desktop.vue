@@ -4,6 +4,7 @@
     <div class="w-full h-full pt-[28px]">
       <Window
         v-for="window in windows"
+        :type="window.type"
         :key="window.id"
         :window-data="window"
         v-show="isWindowVisible"
