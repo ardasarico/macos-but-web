@@ -35,6 +35,11 @@
           ></button>
         </div>
         <div class="w-full h-full pt-5">
+          <iframe
+            class="w-full h-full"
+            src="https://www.google.com/webhp?igu=1"
+          ></iframe>
+
           <slot />
         </div>
       </div>
@@ -54,13 +59,13 @@
       ></div>
     </div>
   </div>
-  <div v-else>
-    <div v-if="windowData.isVisible" class="launchpad">asdasd</div>
+  <div v-else-if="type === 'launchpad'">
+    <div v-if="windowData.isVisible">x</div>
   </div>
 </template>
 
 <style scoped>
-.launchpad {
+.launchpad-open {
   position: fixed;
   width: 100vw;
   height: 100vh;
@@ -147,7 +152,6 @@
 </style>
 
 <script>
-import { inject } from "vue";
 export default {
   data() {
     return {
@@ -169,6 +173,7 @@ export default {
     };
   },
   props: ["windowData", "type"],
+
   methods: {
     goFullscreen() {
       if (!this.isFullscreen) {
@@ -212,6 +217,7 @@ export default {
     minimizeWindow() {
       this.windowData.isVisible = false;
     },
+
     startDrag(event) {
       if (this.isFullscreen) {
         return;

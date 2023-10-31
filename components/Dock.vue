@@ -13,6 +13,7 @@
             'app-icon',
             hoveredIndexes.includes(index) ? 'app-animation' : '',
             app.isOpen && app.type == 'app' ? 'active-app' : '',
+            app.id == '1' ? 'active-app' : '',
           ]"
           @click="openSpecifiedWindow(app.id)"
         >
@@ -72,6 +73,7 @@
 <script setup lang="ts">
 import { ref, inject } from "vue";
 import windowsData from "@/assets/apps.json";
+const openLaunchpad = inject("openLaunchpad");
 
 const bringToFront = inject("bringToFront");
 const openWindow = inject("openWindow");
