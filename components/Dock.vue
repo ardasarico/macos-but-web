@@ -73,7 +73,6 @@
 <script setup lang="ts">
 import { ref, inject } from "vue";
 import windowsData from "@/assets/apps.json";
-const openLaunchpad = inject("openLaunchpad");
 
 const bringToFront = inject("bringToFront");
 const openWindow = inject("openWindow");
@@ -89,12 +88,16 @@ const hoverIcon = (index: number) => {
 const openSpecifiedWindow = (id: string) => {
   const windowToOpen = apps.value.find((w) => w.id === id);
   if (windowToOpen) {
-    windowToOpen.isOpen = true;
-    if (openWindow) {
-      openWindow(id);
-    }
-    if (bringToFront) {
-      bringToFront(windowToOpen);
+    if (windowToOpen.type == "link") {
+      window.open(windowToOpen.link);
+    } else {
+      windowToOpen.isOpen = true;
+      if (openWindow) {
+        openWindow(id);
+      }
+      if (bringToFront) {
+        bringToFront(windowToOpen);
+      }
     }
   }
 };

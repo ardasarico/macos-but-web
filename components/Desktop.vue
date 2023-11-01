@@ -11,8 +11,8 @@
         :style="{ zIndex: window.zIndex }"
         @pointerdown="bringToFront(window)"
         :title="'test app'"
+        :app="windows.app"
       >
-        <p class="mt-2">{{ window.content }}</p>
       </Window>
     </div>
   </div>
@@ -26,7 +26,6 @@ export default {
   setup() {
     const isWindowVisible = ref(true);
     const windows = reactive(windowsData);
-
     const bringToFront = (clickedWindow) => {
       const maxZIndex = windows.length;
       clickedWindow.zIndex = maxZIndex;

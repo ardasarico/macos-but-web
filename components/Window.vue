@@ -34,13 +34,10 @@
             @click="goFullscreen"
           ></button>
         </div>
-        <div class="w-full h-full pt-5">
-          <iframe
-            class="w-full h-full"
-            src="https://www.google.com/webhp?igu=1"
-          ></iframe>
-
-          <slot />
+        <div class="w-full h-full pt-7">
+          <apps-finder v-if="windowData.content === 'finder'" />
+          <apps-safari v-if="windowData.content === 'safari'" />
+          <apps-settings v-if="windowData.content === 'settings'" />
         </div>
       </div>
       <div
@@ -60,11 +57,25 @@
     </div>
   </div>
   <div v-else-if="type === 'launchpad'">
-    <div v-if="windowData.isVisible">x</div>
+    <Launchpad v-if="windowData.isVisible" />
   </div>
 </template>
 
 <style scoped>
+.test {
+  top: 0;
+  height: 100%;
+  width: 100%;
+  animation: test 4s;
+}
+@keyframes test {
+  from {
+    background: red;
+  }
+  to {
+    background: white;
+  }
+}
 .launchpad-open {
   position: fixed;
   width: 100vw;
@@ -152,7 +163,10 @@
 </style>
 
 <script>
+import Launchpad from "~/components/apps/Launchpad.vue";
+
 export default {
+  components: { Launchpad },
   data() {
     return {
       x: 50,
