@@ -9,6 +9,7 @@
         width: width + 'px',
         height: height + 'px',
       }"
+      ref="window"
       :class="{ 'window--fullscreen': isFullscreen }"
     >
       <div class="window__content">
@@ -62,29 +63,6 @@
 </template>
 
 <style scoped>
-.test {
-  top: 0;
-  height: 100%;
-  width: 100%;
-  animation: test 4s;
-}
-@keyframes test {
-  from {
-    background: red;
-  }
-  to {
-    background: white;
-  }
-}
-.launchpad-open {
-  position: fixed;
-  width: 100vw;
-  height: 100vh;
-  background: black;
-  top: 0;
-  left: 0;
-  z-index: 10;
-}
 .window {
   @apply bg-red-500 flex flex-col overflow-hidden rounded-lg absolute;
   backdrop-filter: blur(50px);
@@ -158,7 +136,11 @@
 
 .window-maximizing,
 .window-minimizing {
-  transition: 0.3s;
+  transition:
+    width 0.3s,
+    height 0.3s,
+    top 0.3s,
+    left 0.3s;
 }
 </style>
 
@@ -295,8 +277,7 @@ export default {
         };
 
         // Tam ekran yapma animasyonu sınıfını ekliyoruz
-        this.$el.classList.add("window-maximizing");
-
+        this.$refs.window.classList.add("window-maximizing");
         this.x = 0;
         this.y = 27;
         this.width = window.innerWidth;
@@ -305,11 +286,11 @@ export default {
 
         // Animasyonun bitiminde sınıfı çıkarıyoruz
         setTimeout(() => {
-          this.$el.classList.remove("window-maximizing");
+          this.$refs.window.classList.remove("window-maximizing");
         }, 300);
       } else {
         // Pencere tam ekran ise küçültme animasyonu sınıfını ekliyoruz
-        this.$el.classList.add("window-minimizing");
+        this.$refs.window.classList.add("window-minimizing");
 
         const previous = this.windowData.previousDimensions;
         this.x = previous.x;
@@ -320,7 +301,7 @@ export default {
 
         // Animasyonun bitiminde sınıfı çıkarıyoruz
         setTimeout(() => {
-          this.$el.classList.remove("window-minimizing");
+          this.$refs.window.classList.remove("window-minimizing");
         }, 300);
       }
     },
