@@ -4,15 +4,15 @@
     <div class="w-full h-full pt-[28px]">
       <Window
         v-for="window in windows"
+        v-show="isWindowVisible"
         :type="window.type"
         :key="window.id"
         :window-data="window"
-        v-show="isWindowVisible"
         :style="{ zIndex: window.zIndex }"
         @pointerdown="bringToFront(window)"
         :title="'test app'"
-        :app="windows.app"
       >
+        <p class="mt-2">{{ window.content }}</p>
       </Window>
     </div>
   </div>
@@ -21,15 +21,17 @@
 <script lang="ts">
 import { ref, provide } from "vue";
 import windowsData from "@/assets/apps.json";
+import Launchpad from "~/components/apps/Launchpad.vue";
 
 export default {
+  components: { Launchpad },
   setup() {
     const isWindowVisible = ref(true);
     const windows = reactive(windowsData);
+
     const bringToFront = (clickedWindow) => {
       const maxZIndex = windows.length;
       clickedWindow.zIndex = maxZIndex;
-
       windows
         .filter((window) => window !== clickedWindow)
         .sort((a, b) => b.zIndex - a.zIndex)
@@ -50,6 +52,7 @@ export default {
         windowToOpen.isVisible = true;
       }
     };
+
     provide("openWindow", openWindow);
     provide("isWindowVisible", isWindowVisible);
     provide("toggleWindowVisibility", toggleWindowVisibility);

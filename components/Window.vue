@@ -1,66 +1,252 @@
 <template>
-  <div v-if="type === 'app'">
-    <div
-      v-if="windowData.isVisible"
-      class="window"
-      :style="{
-        top: y + 'px',
-        left: x + 'px',
-        width: width + 'px',
-        height: height + 'px',
-      }"
-      ref="window"
-      :class="{ 'window--fullscreen': isFullscreen }"
-    >
-      <div class="window__content">
+  <div
+    v-if="windowData.isVisible"
+    class="window"
+    :style="{
+      top: y + 'px',
+      left: x + 'px',
+      width: width + 'px',
+      height: height + 'px',
+    }"
+    :class="{ 'window--fullscreen': isFullscreen }"
+  >
+    <div class="window__content">
+      <div
+        class="window__header flex items-center gap-2"
+        :class="windowData.headerSolid ? 'bg-[#1E1E1E]' : 'bg-transparent'"
+        @mousedown.stop="startDrag"
+        @mouseup.stop="stopDrag"
+      >
         <div
-          class="window__header flex items-center gap-2"
-          @mousedown.stop="startDrag"
-          @mouseup.stop="stopDrag"
-        >
-          <div
-            class="absolute left-16 w-full h-full"
-            @dblclick="maximizeWindow"
-          />
-          <button
-            class="window__navigation-button window__navigation-button--red"
-            @click="closeWindow"
-          ></button>
-          <button
-            class="window__navigation-button window__navigation-button--yellow"
-            @click="minimizeWindow"
-          ></button>
-          <button
-            class="window__navigation-button window__navigation-button--green"
-            @click="goFullscreen"
-          ></button>
-        </div>
-        <div class="w-full h-full pt-7">
-          <apps-finder v-if="windowData.content === 'finder'" />
-          <apps-safari v-if="windowData.content === 'safari'" />
-          <apps-settings v-if="windowData.content === 'settings'" />
-        </div>
+          class="absolute left-16 w-full h-full"
+          @dblclick="maximizeWindow"
+        />
+        <button
+          class="window__navigation-button window__navigation-button--red"
+          @click="closeWindow"
+        ></button>
+        <button
+          class="window__navigation-button window__navigation-button--yellow"
+          @click="minimizeWindow"
+        ></button>
+        <button
+          class="window__navigation-button window__navigation-button--green"
+          @click="goFullscreen"
+        ></button>
       </div>
       <div
-        v-for="dir in [
-          'top',
-          'bottom',
-          'left',
-          'right',
-          'top-left',
-          'top-right',
-          'bottom-left',
-          'bottom-right',
-        ]"
-        :class="`window__resizer window__resizer--${dir}`"
-        @mousedown.prevent="startResize(dir, $event)"
-      ></div>
+        class="w-full h-full"
+        :class="windowData.headerSolid ? 'pt-7' : 'pt-0'"
+      >
+        <apps-finder v-if="windowData.content === 'finder'" />
+        <apps-safari v-if="windowData.content === 'safari'" />
+        <apps-settings v-if="windowData.content === 'settings'" />
+      </div>
     </div>
-  </div>
-  <div v-else-if="type === 'launchpad'">
-    <Launchpad v-if="windowData.isVisible" />
+    <div v-if="windowData.type === launchpad">asdasdasd</div>
+    <div
+      v-for="dir in [
+        'top',
+        'bottom',
+        'left',
+        'right',
+        'top-left',
+        'top-right',
+        'bottom-left',
+        'bottom-right',
+      ]"
+      :class="`window__resizer window__resizer--${dir}`"
+      @mousedown.prevent="startResize(dir, $event)"
+    ></div>
   </div>
 </template>
+<script>
+import { inject } from "vue";
+export default {
+  data() {
+    return {
+      x: 50,
+      y: 50,
+      width: 800,
+      height: 500,
+      isDragging: false,
+      isResizing: false,
+      lastX: 0,
+      lastY: 0,
+      resizeDirection: "",
+      minWidth: 600,
+      minHeight: 400,
+      isMaximized: false,
+      isFullscreen: false,
+      previousDimensions: null,
+    };
+  },
+  props: ["windowData"],
+  methods: {
+    goFullscreen() {
+      if (!this.isFullscreen) {
+        this.previousDimensions = {
+          x: this.x,
+          y: this.y,
+          width: this.width,
+          height: this.height,
+        };
+        this.$el.classList.add("window-fullscreening");
+        this.x = 0;
+        this.y = 27;
+        this.width = window.innerWidth;
+        this.height = window.innerHeight - 27;
+        this.isFullscreen = true;
+        setTimeout(() => {
+          this.$el.classList.remove("window-fullscreening");
+        }, 300);
+      } else {
+        this.$el.classList.add("window-exiting-fullscreen");
+        const previous = this.previousDimensions;
+        this.x = previous.x;
+        this.y = previous.y;
+        this.width = previous.width;
+        this.height = previous.height;
+        this.isFullscreen = false;
+        setTimeout(() => {
+          this.$el.classList.remove("window-exiting-fullscreen");
+        }, 300);
+      }
+    },
+    closeWindow() {
+      this.windowData.isVisible = false;
+      this.windowData.isOpen = false;
+    },
+    minimizeWindow() {
+      this.windowData.isVisible = false;
+    },
+    startDrag(event) {
+      if (this.isFullscreen) {
+        return;
+      }
+      this.isDragging = true;
+      this.lastX = event.clientX;
+      this.lastY = event.clientY;
+      document.addEventListener("mousemove", this.drag);
+      document.addEventListener("mouseup", this.stopDrag);
+    },
+    drag(event) {
+      if (!this.isDragging) return;
+      if (this.windowData.isMaximized) {
+        this.width = window.innerWidth * (2 / 3);
+        this.height = window.innerHeight * (2 / 3);
+        this.windowData.isMaximized = false;
+      }
+      const deltaX = event.clientX - this.lastX;
+      const deltaY = event.clientY - this.lastY;
+      const newX = this.x + deltaX;
+      const newY = this.y + deltaY;
+      if (
+        newX + this.width * 0.5 >= 0 &&
+        newX + this.width * 0.5 <= window.innerWidth
+      ) {
+        this.x = newX;
+      }
+      if (newY >= 27 && newY + this.height * 0.5 <= window.innerHeight) {
+        this.y = newY;
+      }
+      this.lastX = event.clientX;
+      this.lastY = event.clientY;
+    },
+    stopDrag() {
+      this.isDragging = false;
+      document.removeEventListener("mousemove", this.drag);
+    },
+    startResize(direction, event) {
+      this.isResizing = true;
+      this.resizeDirection = direction;
+      this.lastX = event.clientX;
+      this.lastY = event.clientY;
+      document.addEventListener("mousemove", this.resize);
+      document.addEventListener("mouseup", this.stopResize);
+    },
+    maximizeWindow() {
+      if (this.isFullscreen) return;
+      if (!this.windowData.isMaximized) {
+        this.windowData.previousDimensions = {
+          x: this.x,
+          y: this.y,
+          width: this.width,
+          height: this.height,
+        };
+        // Tam ekran yapma animasyonu sınıfını ekliyoruz
+        this.$el.classList.add("window-maximizing");
+        this.x = 0;
+        this.y = 27;
+        this.width = window.innerWidth;
+        this.height = window.innerHeight - 27 - 76;
+        this.windowData.isMaximized = true;
+        // Animasyonun bitiminde sınıfı çıkarıyoruz
+        setTimeout(() => {
+          this.$el.classList.remove("window-maximizing");
+        }, 300);
+      } else {
+        // Pencere tam ekran ise küçültme animasyonu sınıfını ekliyoruz
+        this.$el.classList.add("window-minimizing");
+        const previous = this.windowData.previousDimensions;
+        this.x = previous.x;
+        this.y = previous.y;
+        this.width = previous.width;
+        this.height = previous.height;
+        this.windowData.isMaximized = false;
+        // Animasyonun bitiminde sınıfı çıkarıyoruz
+        setTimeout(() => {
+          this.$el.classList.remove("window-minimizing");
+        }, 300);
+      }
+    },
+    resize(event) {
+      const deltaX = event.clientX - this.lastX;
+      const deltaY = event.clientY - this.lastY;
+      let newWidth = this.width;
+      let newHeight = this.height;
+      if (
+        this.resizeDirection.includes("right") &&
+        this.x + this.width + deltaX <= window.innerWidth
+      ) {
+        newWidth = this.width + deltaX;
+      }
+      if (this.resizeDirection.includes("left")) {
+        const potentialWidth = this.width - deltaX;
+        if (
+          potentialWidth >= this.minWidth &&
+          this.x + deltaX >= -this.width * 0.5
+        ) {
+          this.x += deltaX;
+          newWidth = potentialWidth;
+        }
+      }
+      if (
+        this.resizeDirection.includes("bottom") &&
+        this.y + this.height + deltaY <= window.innerHeight
+      ) {
+        newHeight = this.height + deltaY;
+      }
+      if (this.resizeDirection.includes("top")) {
+        const potentialHeight = this.height - deltaY;
+        if (potentialHeight >= this.minHeight && this.y + deltaY >= 27) {
+          this.y += deltaY;
+          newHeight = potentialHeight;
+        }
+      }
+      this.width = Math.max(newWidth, this.minWidth);
+      this.height = Math.max(newHeight, this.minHeight);
+      this.lastX = event.clientX;
+      this.lastY = event.clientY;
+    },
+    stopResize() {
+      this.isResizing = false;
+      document.removeEventListener("mousemove", this.resize);
+    },
+  },
+  mounted() {},
+};
+</script>
 
 <style scoped>
 .window {
@@ -75,7 +261,7 @@
   @apply relative w-full h-full;
 }
 .window__header {
-  @apply absolute w-full px-2 py-2 bg-[#1E1E1E];
+  @apply absolute w-full px-2 py-2;
 }
 .window__navigation-button {
   @apply w-3.5 h-3.5 rounded-full flex items-center justify-center;
@@ -133,226 +319,8 @@
 .window__resizer--bottom-right {
   @apply bottom-0 right-0 cursor-se-resize;
 }
-
 .window-maximizing,
 .window-minimizing {
-  transition:
-    width 0.3s,
-    height 0.3s,
-    top 0.3s,
-    left 0.3s;
+  transition: 0.3s;
 }
 </style>
-
-<script>
-import Launchpad from "~/components/apps/Launchpad.vue";
-
-export default {
-  components: { Launchpad },
-  data() {
-    return {
-      x: 50,
-      y: 50,
-      width: 800,
-      height: 500,
-      isDragging: false,
-      isResizing: false,
-      lastX: 0,
-      lastY: 0,
-      resizeDirection: "",
-      minWidth: 600,
-      minHeight: 400,
-      isMaximized: false,
-      isFullscreen: false,
-      previousDimensions: null,
-      type: "",
-    };
-  },
-  props: ["windowData", "type"],
-
-  methods: {
-    goFullscreen() {
-      if (!this.isFullscreen) {
-        this.previousDimensions = {
-          x: this.x,
-          y: this.y,
-          width: this.width,
-          height: this.height,
-        };
-
-        this.$el.classList.add("window-fullscreening");
-
-        this.x = 0;
-        this.y = 27;
-        this.width = window.innerWidth;
-        this.height = window.innerHeight - 27;
-        this.isFullscreen = true;
-
-        setTimeout(() => {
-          this.$el.classList.remove("window-fullscreening");
-        }, 300);
-      } else {
-        this.$el.classList.add("window-exiting-fullscreen");
-
-        const previous = this.previousDimensions;
-        this.x = previous.x;
-        this.y = previous.y;
-        this.width = previous.width;
-        this.height = previous.height;
-        this.isFullscreen = false;
-
-        setTimeout(() => {
-          this.$el.classList.remove("window-exiting-fullscreen");
-        }, 300);
-      }
-    },
-    closeWindow() {
-      this.windowData.isVisible = false;
-      this.windowData.isOpen = false;
-    },
-    minimizeWindow() {
-      this.windowData.isVisible = false;
-    },
-
-    startDrag(event) {
-      if (this.isFullscreen) {
-        return;
-      }
-      this.isDragging = true;
-      this.lastX = event.clientX;
-      this.lastY = event.clientY;
-      document.addEventListener("mousemove", this.drag);
-      document.addEventListener("mouseup", this.stopDrag);
-    },
-    drag(event) {
-      if (!this.isDragging) return;
-
-      if (this.windowData.isMaximized) {
-        this.width = window.innerWidth * (2 / 3);
-        this.height = window.innerHeight * (2 / 3);
-        this.windowData.isMaximized = false;
-      }
-
-      const deltaX = event.clientX - this.lastX;
-      const deltaY = event.clientY - this.lastY;
-
-      const newX = this.x + deltaX;
-      const newY = this.y + deltaY;
-
-      if (
-        newX + this.width * 0.5 >= 0 &&
-        newX + this.width * 0.5 <= window.innerWidth
-      ) {
-        this.x = newX;
-      }
-      if (newY >= 27 && newY + this.height * 0.5 <= window.innerHeight) {
-        this.y = newY;
-      }
-
-      this.lastX = event.clientX;
-      this.lastY = event.clientY;
-    },
-    stopDrag() {
-      this.isDragging = false;
-      document.removeEventListener("mousemove", this.drag);
-    },
-
-    startResize(direction, event) {
-      this.isResizing = true;
-      this.resizeDirection = direction;
-      this.lastX = event.clientX;
-      this.lastY = event.clientY;
-
-      document.addEventListener("mousemove", this.resize);
-      document.addEventListener("mouseup", this.stopResize);
-    },
-    maximizeWindow() {
-      if (this.isFullscreen) return;
-      if (!this.windowData.isMaximized) {
-        this.windowData.previousDimensions = {
-          x: this.x,
-          y: this.y,
-          width: this.width,
-          height: this.height,
-        };
-
-        // Tam ekran yapma animasyonu sınıfını ekliyoruz
-        this.$refs.window.classList.add("window-maximizing");
-        this.x = 0;
-        this.y = 27;
-        this.width = window.innerWidth;
-        this.height = window.innerHeight - 27 - 76;
-        this.windowData.isMaximized = true;
-
-        // Animasyonun bitiminde sınıfı çıkarıyoruz
-        setTimeout(() => {
-          this.$refs.window.classList.remove("window-maximizing");
-        }, 300);
-      } else {
-        // Pencere tam ekran ise küçültme animasyonu sınıfını ekliyoruz
-        this.$refs.window.classList.add("window-minimizing");
-
-        const previous = this.windowData.previousDimensions;
-        this.x = previous.x;
-        this.y = previous.y;
-        this.width = previous.width;
-        this.height = previous.height;
-        this.windowData.isMaximized = false;
-
-        // Animasyonun bitiminde sınıfı çıkarıyoruz
-        setTimeout(() => {
-          this.$refs.window.classList.remove("window-minimizing");
-        }, 300);
-      }
-    },
-    resize(event) {
-      const deltaX = event.clientX - this.lastX;
-      const deltaY = event.clientY - this.lastY;
-
-      let newWidth = this.width;
-      let newHeight = this.height;
-
-      if (
-        this.resizeDirection.includes("right") &&
-        this.x + this.width + deltaX <= window.innerWidth
-      ) {
-        newWidth = this.width + deltaX;
-      }
-      if (this.resizeDirection.includes("left")) {
-        const potentialWidth = this.width - deltaX;
-        if (
-          potentialWidth >= this.minWidth &&
-          this.x + deltaX >= -this.width * 0.5
-        ) {
-          this.x += deltaX;
-          newWidth = potentialWidth;
-        }
-      }
-      if (
-        this.resizeDirection.includes("bottom") &&
-        this.y + this.height + deltaY <= window.innerHeight
-      ) {
-        newHeight = this.height + deltaY;
-      }
-      if (this.resizeDirection.includes("top")) {
-        const potentialHeight = this.height - deltaY;
-        if (potentialHeight >= this.minHeight && this.y + deltaY >= 27) {
-          this.y += deltaY;
-          newHeight = potentialHeight;
-        }
-      }
-
-      this.width = Math.max(newWidth, this.minWidth);
-      this.height = Math.max(newHeight, this.minHeight);
-
-      this.lastX = event.clientX;
-      this.lastY = event.clientY;
-    },
-    stopResize() {
-      this.isResizing = false;
-      document.removeEventListener("mousemove", this.resize);
-    },
-  },
-  mounted() {},
-};
-</script>

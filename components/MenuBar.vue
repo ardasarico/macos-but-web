@@ -1,4 +1,26 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import { ref, onMounted } from "vue";
+
+const dateTime = ref("");
+
+function updateDateTime() {
+  const now = new Date();
+  dateTime.value = now
+    .toLocaleString("en-US", {
+      weekday: "short",
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    })
+    .replace(/,/g, "");
+}
+
+onMounted(() => {
+  updateDateTime();
+  setInterval(updateDateTime, 60000);
+});
+</script>
 
 <template>
   <div
@@ -12,7 +34,7 @@
     <button class="text-sm p-1">Item</button>
     <button class="text-sm p-1">Item</button>
     <div class="ml-auto text-sm flex items-center gap-2 cursor-pointer px-3">
-      22 October Sun 20:03
+      {{ dateTime }}
     </div>
   </div>
 </template>
