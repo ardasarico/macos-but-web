@@ -12,15 +12,15 @@
   >
     <div class="window__content">
       <div
-        class="window__header flex items-center gap-2"
-        :class="windowData.headerSolid ? 'bg-[#1E1E1E]' : 'bg-transparent'"
+        @dblclick="maximizeWindow"
+        class="window__header flex items-center gap-2 px-2 py-2"
+        :class="
+          (windowData.headerSolid ? 'bg-[#1E1E1E]' : '',
+          windowData.content === 'safari' ? ' h-14 px-5 ' : '')
+        "
         @mousedown.stop="startDrag"
         @mouseup.stop="stopDrag"
       >
-        <div
-          class="absolute left-16 w-full h-full"
-          @dblclick="maximizeWindow"
-        />
         <button
           class="window__navigation-button window__navigation-button--red"
           @click="closeWindow"
@@ -43,7 +43,6 @@
         <apps-settings v-if="windowData.content === 'settings'" />
       </div>
     </div>
-    <div v-if="windowData.type === launchpad">asdasdasd</div>
     <div
       v-for="dir in [
         'top',
@@ -133,8 +132,8 @@ export default {
     drag(event) {
       if (!this.isDragging) return;
       if (this.windowData.isMaximized) {
-        this.width = window.innerWidth * (2 / 3);
-        this.height = window.innerHeight * (2 / 3);
+        this.width = window.innerWidth * (2 / 5);
+        this.height = window.innerHeight * (3 / 5);
         this.windowData.isMaximized = false;
       }
       const deltaX = event.clientX - this.lastX;
@@ -261,7 +260,7 @@ export default {
   @apply relative w-full h-full;
 }
 .window__header {
-  @apply absolute w-full px-2 py-2;
+  @apply absolute w-full;
 }
 .window__navigation-button {
   @apply w-3.5 h-3.5 rounded-full flex items-center justify-center;

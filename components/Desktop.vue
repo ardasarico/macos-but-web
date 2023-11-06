@@ -12,7 +12,6 @@
         @pointerdown="bringToFront(window)"
         :title="'test app'"
       >
-        <p class="mt-2">{{ window.content }}</p>
       </Window>
     </div>
   </div>
