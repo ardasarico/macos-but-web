@@ -249,8 +249,9 @@ export default {
 
 <style scoped>
 .window {
-  @apply bg-red-500 flex flex-col overflow-hidden rounded-lg absolute;
-  backdrop-filter: blur(50px);
+  @apply flex flex-col overflow-hidden rounded-lg absolute;
+  backdrop-filter: blur(10px);
+  background: rgba(38, 36, 37, 0.9);
   box-shadow:
     0px 0px 3px 0px rgba(0, 0, 0, 0.55),
     0px 8px 40px 0px rgba(0, 0, 0, 0.25),

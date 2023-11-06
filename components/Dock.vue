@@ -64,6 +64,9 @@
     width: 72px;
     height: 72px;
   }
+  &:active {
+    filter: brightness(50%);
+  }
 }
 .app-animation {
   width: 64px;
