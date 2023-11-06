@@ -13,6 +13,10 @@
             'app-icon',
             hoveredIndexes.includes(index) ? 'app-animation' : '',
             app.isOpen && app.type == 'app' ? 'active-app' : '',
+            {
+              'active-animation':
+                app.isOpen && app.type === 'app' && app.id !== 1,
+            },
             app.id == '1' ? 'active-app' : '',
           ]"
           @click="openSpecifiedWindow(app.id)"
@@ -28,6 +32,27 @@
   </div>
 </template>
 <style lang="scss" scoped>
+@keyframes active {
+  0% {
+    transform: translateY(0px);
+  }
+  20% {
+    transform: translateY(-15%);
+  }
+  40% {
+    transform: translateY(0px);
+  }
+  60% {
+    transform: translateY(-15%);
+  }
+  80% {
+    transform: translateY(0px);
+  }
+}
+.active-animation {
+  transition: 0.3s;
+  animation: active 3s;
+}
 .active-app {
   &:after {
     content: "";
