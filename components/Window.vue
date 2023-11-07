@@ -118,10 +118,10 @@ export default {
       this.windowData.isOpen = false;
     },
     minimizeWindow() {
-      this.$el.classList.add("window-minimizing");
+      this.$el.classList.add("window-scale");
 
       setTimeout(() => {
-        this.$el.classList.remove("window-minimizing");
+        this.$el.classList.remove("window-scale");
         this.windowData.isVisible = false;
       }, 900);
     },
@@ -335,11 +335,11 @@ export default {
   }
   100% {
     transform-origin: bottom;
-    transform: translateY(50%);
+    transform: translateY(75%) translateX(25%);
     opacity: 0;
   }
 }
-.window-minimizing {
+.window-scale {
   animation: minimize 1s;
 }
 </style>
