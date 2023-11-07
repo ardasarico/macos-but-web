@@ -59,6 +59,7 @@
     ></div>
   </div>
 </template>
+
 <script>
 import { inject } from "vue";
 export default {
@@ -117,7 +118,12 @@ export default {
       this.windowData.isOpen = false;
     },
     minimizeWindow() {
-      this.windowData.isVisible = false;
+      this.$el.classList.add("window-minimizing");
+
+      setTimeout(() => {
+        this.$el.classList.remove("window-minimizing");
+        this.windowData.isVisible = false;
+      }, 900);
     },
     startDrag(event) {
       if (this.isFullscreen) {
@@ -249,13 +255,14 @@ export default {
 
 <style scoped>
 .window {
-  @apply flex flex-col overflow-hidden rounded-lg absolute;
+  @apply flex flex-col overflow-hidden rounded-[10px] absolute w-full h-full;
   backdrop-filter: blur(10px);
   background: rgba(38, 36, 37, 0.9);
   box-shadow:
     0px 0px 3px 0px rgba(0, 0, 0, 0.55),
-    0px 8px 40px 0px rgba(0, 0, 0, 0.25),
-    0px 0px 3px 0px rgba(255, 255, 255, 0.1) inset;
+    0px 8px 40px 0px rgba(0, 0, 0, 0.25);
+  border: 1px rgba(255, 255, 255, 0.25) solid;
+  outline: solid 1px rgba(0, 0, 0, 0.3);
 }
 .window__content {
   @apply relative w-full h-full;
@@ -322,5 +329,17 @@ export default {
 .window-maximizing,
 .window-minimizing {
   transition: 0.3s;
+}
+@keyframes minimize {
+  0% {
+  }
+  100% {
+    transform-origin: bottom;
+    transform: translateY(50%);
+    opacity: 0;
+  }
+}
+.window-minimizing {
+  animation: minimize 1s;
 }
 </style>
