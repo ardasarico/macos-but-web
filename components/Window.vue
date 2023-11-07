@@ -135,29 +135,42 @@ export default {
       document.addEventListener("mousemove", this.drag);
       document.addEventListener("mouseup", this.stopDrag);
     },
-    drag(event) {
-      if (!this.isDragging) return;
-      if (this.windowData.isMaximized) {
-        this.width = window.innerWidth * (2 / 5);
-        this.height = window.innerHeight * (3 / 5);
-        this.windowData.isMaximized = false;
-      }
-      const deltaX = event.clientX - this.lastX;
-      const deltaY = event.clientY - this.lastY;
-      const newX = this.x + deltaX;
-      const newY = this.y + deltaY;
-      if (
-        newX + this.width * 0.5 >= 0 &&
-        newX + this.width * 0.5 <= window.innerWidth
-      ) {
-        this.x = newX;
-      }
-      if (newY >= 27 && newY + this.height * 0.5 <= window.innerHeight) {
-        this.y = newY;
-      }
-      this.lastX = event.clientX;
-      this.lastY = event.clientY;
-    },
+		drag(event) {
+			if (!this.isDragging || this.isFullscreen) return; // Tam ekranda sürüklemeyi engelle
+
+			const currentX = event.clientX;
+			const currentY = event.clientY;
+			const deltaX = currentX - this.lastX;
+			const deltaY = currentY - this.lastY;
+
+			if (this.windowData.isMaximized) {
+				// Maksimize edilmiş pencereyi küçült ve imlecin ortasına getir.
+				this.width = Math.max(window.innerWidth * (2 / 5), this.minWidth);
+				this.height = Math.max(window.innerHeight * (3 / 5), this.minHeight);
+				// Pencerenin yukarıya çıkmasını engellemek için y'nin minimum değerini belirle
+				this.x = currentX - this.width / 2;
+				this.y = Math.max(currentY - this.height / 2, 27);
+				this.windowData.isMaximized = false;
+				// Pencere küçültüldükten sonra sürüklemeye devam et.
+				this.lastX = currentX;
+				this.lastY = Math.max(currentY, 27 + this.height / 2); // Yeni y pozisyonuna göre ayarla
+			} else {
+				// Pencere normal boyutta sürüklenirken güncelleme.
+				// Pencerenin sol ve sağ kenarlarının ekranın dışına çıkmasına izin ver
+				this.x = this.x + deltaX;
+				// Pencerenin üst kenarının ekranın üst sınırından aşağıda kalmasını sağla
+				this.y = Math.max(this.y + deltaY, 27);
+				this.lastX = currentX;
+				this.lastY = currentY;
+			}
+
+			// Sınırları aşmayacak şekilde pencere koordinatlarını ayarla
+			const maxX = window.innerWidth - this.minWidth / 2;
+			const maxY = window.innerHeight - this.minHeight / 2;
+
+			this.x = Math.min(Math.max(this.x, -this.width / 2), maxX);
+			this.y = Math.min(Math.max(this.y, 27), maxY);
+		},
     stopDrag() {
       this.isDragging = false;
       document.removeEventListener("mousemove", this.drag);
