@@ -5,6 +5,6 @@
   { "id": 4,  "icon": "/app-icons/mail.png", "type": "link",
     "link": "mailto:hi@ardasari.co"
   },
-  { "id": 5, "content": "settings", "isVisible": false , "isOpen": false , "icon": "/app-icons/settings.png", "type": "app", "headerSolid": "true" },
+  { "id": 5, "content": "settings", "isVisible": false , "isOpen": false , "icon": "/app-icons/settings.png", "type": "app"},
   { "id": 6,  "icon": "/app-icons/github.png", "type": "link", "link": "https://github.com/ardasarico" }
 ]

@@ -3,9 +3,12 @@ import { className } from "postcss-selector-parser";
 </script>
 
 <template>
-  <div class="w-full h-full overflow-hidden">
+  <div
+    class="w-full h-full overflow-hidden"
+    style="background: rgba(44, 40, 40, 0.55); backdrop-filter: blur(50px)"
+  >
     <div
-      class="bg-[#393637] h-14 shadow-lg flex justify-center items-center w-full py-3"
+      class="bg-[#3F3938] h-14 shadow-lg flex justify-center items-center w-full py-3 border-b border-1 border-black"
     >
       <div
         class="absolute z-[999] h-7 w-1/2 w-3/5 max-w-[600px] flex items-center justify-center text-white/50 bg-[#2C292A] text-sm font-[200] gap-2 rounded"

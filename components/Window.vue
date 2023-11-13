@@ -13,11 +13,11 @@
     <div class="window__content">
       <div
         @dblclick="maximizeWindow"
-        class="window__header flex items-center gap-2 px-2 py-2"
-        :class="
-          (windowData.headerSolid ? 'bg-[#1E1E1E]' : '',
-          windowData.content === 'safari' ? ' h-14 px-5 ' : '')
-        "
+        class="window__header z-[99] flex items-center gap-2 px-2 py-2"
+        :class="[
+          windowData.headerSolid ? 'bg-[#3F3938]' : '',
+          windowData.content === 'safari' ? 'h-14 px-5' : '',
+        ]"
         @mousedown.stop="startDrag"
         @mouseup.stop="stopDrag"
       >
@@ -74,8 +74,8 @@ export default {
       lastX: 0,
       lastY: 0,
       resizeDirection: "",
-      minWidth: 600,
-      minHeight: 400,
+      minWidth: 800,
+      minHeight: 500,
       isMaximized: false,
       isFullscreen: false,
       previousDimensions: null,
@@ -135,42 +135,42 @@ export default {
       document.addEventListener("mousemove", this.drag);
       document.addEventListener("mouseup", this.stopDrag);
     },
-		drag(event) {
-			if (!this.isDragging || this.isFullscreen) return; // Tam ekranda sürüklemeyi engelle
+    drag(event) {
+      if (!this.isDragging || this.isFullscreen) return; // Tam ekranda sürüklemeyi engelle
 
-			const currentX = event.clientX;
-			const currentY = event.clientY;
-			const deltaX = currentX - this.lastX;
-			const deltaY = currentY - this.lastY;
+      const currentX = event.clientX;
+      const currentY = event.clientY;
+      const deltaX = currentX - this.lastX;
+      const deltaY = currentY - this.lastY;
 
-			if (this.windowData.isMaximized) {
-				// Maksimize edilmiş pencereyi küçült ve imlecin ortasına getir.
-				this.width = Math.max(window.innerWidth * (2 / 5), this.minWidth);
-				this.height = Math.max(window.innerHeight * (3 / 5), this.minHeight);
-				// Pencerenin yukarıya çıkmasını engellemek için y'nin minimum değerini belirle
-				this.x = currentX - this.width / 2;
-				this.y = Math.max(currentY - this.height / 2, 27);
-				this.windowData.isMaximized = false;
-				// Pencere küçültüldükten sonra sürüklemeye devam et.
-				this.lastX = currentX;
-				this.lastY = Math.max(currentY, 27 + this.height / 2); // Yeni y pozisyonuna göre ayarla
-			} else {
-				// Pencere normal boyutta sürüklenirken güncelleme.
-				// Pencerenin sol ve sağ kenarlarının ekranın dışına çıkmasına izin ver
-				this.x = this.x + deltaX;
-				// Pencerenin üst kenarının ekranın üst sınırından aşağıda kalmasını sağla
-				this.y = Math.max(this.y + deltaY, 27);
-				this.lastX = currentX;
-				this.lastY = currentY;
-			}
+      if (this.windowData.isMaximized) {
+        // Maksimize edilmiş pencereyi küçült ve imlecin ortasına getir.
+        this.width = Math.max(window.innerWidth * (2 / 5), this.minWidth);
+        this.height = Math.max(window.innerHeight * (3 / 5), this.minHeight);
+        // Pencerenin yukarıya çıkmasını engellemek için y'nin minimum değerini belirle
+        this.x = currentX - this.width / 2;
+        this.y = Math.max(currentY - this.height / 2, 27);
+        this.windowData.isMaximized = false;
+        // Pencere küçültüldükten sonra sürüklemeye devam et.
+        this.lastX = currentX;
+        this.lastY = Math.max(currentY, 27 + this.height / 2); // Yeni y pozisyonuna göre ayarla
+      } else {
+        // Pencere normal boyutta sürüklenirken güncelleme.
+        // Pencerenin sol ve sağ kenarlarının ekranın dışına çıkmasına izin ver
+        this.x = this.x + deltaX;
+        // Pencerenin üst kenarının ekranın üst sınırından aşağıda kalmasını sağla
+        this.y = Math.max(this.y + deltaY, 27);
+        this.lastX = currentX;
+        this.lastY = currentY;
+      }
 
-			// Sınırları aşmayacak şekilde pencere koordinatlarını ayarla
-			const maxX = window.innerWidth - this.minWidth / 2;
-			const maxY = window.innerHeight - this.minHeight / 2;
+      // Sınırları aşmayacak şekilde pencere koordinatlarını ayarla
+      const maxX = window.innerWidth - this.minWidth / 2;
+      const maxY = window.innerHeight - this.minHeight / 2;
 
-			this.x = Math.min(Math.max(this.x, -this.width / 2), maxX);
-			this.y = Math.min(Math.max(this.y, 27), maxY);
-		},
+      this.x = Math.min(Math.max(this.x, -this.width / 2), maxX);
+      this.y = Math.min(Math.max(this.y, 27), maxY);
+    },
     stopDrag() {
       this.isDragging = false;
       document.removeEventListener("mousemove", this.drag);
@@ -269,12 +269,11 @@ export default {
 <style scoped>
 .window {
   @apply flex flex-col overflow-hidden rounded-[10px] absolute w-full h-full;
-  backdrop-filter: blur(10px);
-  background: rgba(38, 36, 37, 0.9);
+  backdrop-filter: blur(20px);
   box-shadow:
     0px 0px 3px 0px rgba(0, 0, 0, 0.55),
     0px 8px 40px 0px rgba(0, 0, 0, 0.25);
-  border: 1px rgba(255, 255, 255, 0.25) solid;
+  border: 1px rgba(255, 255, 255, 0.15) solid;
   outline: solid 1px rgba(0, 0, 0, 0.3);
 }
 .window__content {
